@@ -8,11 +8,11 @@ import IconButton from '@mui/material/IconButton';
 // ----------------------------------------------------------------------
 
 const LANGS = [
-  {
-    value: 'en',
-    label: 'English',
-    icon: '/assets/icons/ic_flag_en.svg',
-  },
+  // {
+  //   value: 'en',
+  //   label: 'English',
+  //   icon: '/assets/icons/ic_flag_en.svg',
+  // },
   {
     value: 'de',
     label: 'German',
@@ -50,7 +50,7 @@ export default function LanguagePopover() {
           }),
         }}
       >
-        <img src={LANGS[0].icon} alt={LANGS[0].label} />
+        {/* <img src={LANGS[0].icon} alt={LANGS[0].label} /> */}
       </IconButton>
 
       <Popover
