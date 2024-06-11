@@ -38,7 +38,8 @@ const secondaryModalStyle = {
     p: 4,
 };
 
-const ProductModal = ({ open = true, handleClose }) => {
+// eslint-disable-next-line react/prop-types
+const ProductModal = ({ open , handleClose }) => {
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [attributeModalOpen, setAttributeModalOpen] = useState(false);
     const [taxProfileModalOpen, setTaxProfileModalOpen] = useState(false);
