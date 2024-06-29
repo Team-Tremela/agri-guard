@@ -8,7 +8,7 @@ export default function OrdersPage() {
     return (
         <>
             <Helmet>
-                <title> Products | Minimal UI </title>
+                <title> Products | AgriGuard </title>
             </Helmet>
 
             <OrdersView />

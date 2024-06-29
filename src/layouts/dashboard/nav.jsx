@@ -14,9 +14,11 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+
 import { useResponsive } from 'src/hooks/use-responsive';
 
 import { account } from 'src/_mock/account';
+
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -51,7 +53,7 @@ export default function Nav({ openNav, onCloseNav }) {
     >
       <Avatar src={account.photoURL} alt="photoURL" />
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
+        <Typography variant="subtitle2">Jitander Rahi Das</Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {account.role}
         </Typography>

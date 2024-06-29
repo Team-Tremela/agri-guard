@@ -1,7 +1,9 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Radio from '@mui/material/Radio';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
@@ -11,14 +13,13 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
+import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import CardContent from '@mui/material/CardContent';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { token, url } from 'src/sections/url';
-import axios from 'axios';
+
+import { url, token } from 'src/sections/url';
 
 const mainModalStyle = {
     position: 'absolute',
@@ -49,7 +50,7 @@ const secondaryModalStyle = {
 const ProductModal = ({ open, handleClose }) => {
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [attributeModalOpen, setAttributeModalOpen] = useState(false);
-    const [taxProfileModalOpen, setTaxProfileModalOpen] = useState(false);
+    const [setTaxProfileModalOpen] = useState(false);
 
     const [longDescriptions, setLongDescriptions] = useState([{ title: '', description: '' }]);
     const [attributes, setAttributes] = useState([{ name: '', value: '', regular_price: '', sale_price: '' }]);
@@ -70,7 +71,7 @@ const ProductModal = ({ open, handleClose }) => {
     const handleCategoryModalOpen = () => setCategoryModalOpen(true);
     const handleCategoryModalClose = () => setCategoryModalOpen(false);
 
-    const handleAttributeModalOpen = () => setAttributeModalOpen(true);
+    // const handleAttributeModalOpen = () => setAttributeModalOpen(true);
     const handleAttributeModalClose = () => setAttributeModalOpen(false);
 
     const handleTaxProfileModalOpen = () => setTaxProfileModalOpen(true);
@@ -118,7 +119,7 @@ const ProductModal = ({ open, handleClose }) => {
     };
 
     const handleMultipleFilesChange = (e, setImagesCallback) => {
-        const files = e.target.files;
+        const files = e.target.files[0];
         const fileArray = Array.from(files);
         const promises = fileArray.map(file =>
             new Promise((resolve, reject) => {
@@ -430,7 +431,7 @@ const ProductModal = ({ open, handleClose }) => {
                             color="primary"
                             sx={{ marginTop: 2 }}
                         >
-                            Add Product
+                            Save product
                         </Button>
                     </form>
                 </Box>

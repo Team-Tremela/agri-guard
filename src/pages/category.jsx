@@ -8,7 +8,7 @@ export default function CategoryPage() {
   return (
     <>
       <Helmet>
-        <title> Products | Minimal UI </title>
+        <title> Products | AgriGuard </title>
       </Helmet>
 
       <CategoryView />
