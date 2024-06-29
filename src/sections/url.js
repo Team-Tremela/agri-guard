@@ -1,0 +1,2 @@
+export const url = 'https://agriguard-w0cy.onrender.com/v1'
+export const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE3MTc2ODE1OTZ9.lF3cZ7vLMvK7-H9GlxmXVXRe9oG_rmkPJR8jiS1JFzY'

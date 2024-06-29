@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -13,21 +13,20 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { url, token } from 'src/sections/url';
-import { farmingProducts } from 'src/_mock/user';
+
+// import { allOrder } from 'src/_mock/user'; // Assume this is your mock data
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import axios from 'axios';
+
+import { token, url } from 'src/sections/url';
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
-export default function ProductsPage() {
+export default function OrderPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected] = useState([]);
@@ -35,15 +34,10 @@ export default function ProductsPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
-  const [allProduts, setAllProducts] = useState([]);
-  const handleSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
+  const [allOrder, setAllOrder] = useState([]);
   useEffect(() => {
-    const getAllProducts = () => {
-      axios.get(`${url}/product/fetch-all`, {
+    const getAllorder = () => {
+      axios.get(`${url}/order/fetch-total-order`, {
         headers: {
           Authorization: `${token}`
         }
@@ -51,7 +45,7 @@ export default function ProductsPage() {
         .then((res) => {
           console.log(res, "res");
           if (res.data.success) {
-            setAllProducts(res.data.data);
+            setAllOrder(res.data.data);
           }
         })
         .catch((error) => {
@@ -59,35 +53,13 @@ export default function ProductsPage() {
         });
     };
 
-    getAllProducts();
+    getAllorder();
   }, []);
-
-  // const handleSelectAllClick = (event) => {
-  //   if (event.target.checked) {
-  //     const newSelecteds = farmingProducts.map((n) => n.name);
-  //     setSelected(newSelecteds);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
-
-  // const handleClick = (event, name) => {
-  //   const selectedIndex = selected.indexOf(name);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, name);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(
-  //       selected.slice(0, selectedIndex),
-  //       selected.slice(selectedIndex + 1)
-  //     );
-  //   }
-  //   setSelected(newSelected);
-  // };
+  const handleSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -111,21 +83,18 @@ export default function ProductsPage() {
     setOpenModal(false);
   };
 
-  const handleEdit = (product) => {
-    // Handle edit product logic here
-    console.log('Edit product', product);
-    setOpenModal(true);
-    // Pass the product details to the modal or set in state
+  const handleAcceptOrder = (id) => {
+    console.log(`Order ${id} accepted`);
+    // Add logic to update order status
   };
 
-  const handleDelete = (product) => {
-    // Handle delete product logic here
-    console.log('Delete product', product);
-    // Add your delete logic, such as an API call to delete the product
+  const handleDeclineOrder = (id) => {
+    console.log(`Order ${id} declined`);
+    // Add logic to update order status
   };
 
   const dataFiltered = applyFilter({
-    inputData: allProduts,
+    inputData: allOrder,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -135,7 +104,7 @@ export default function ProductsPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Products</Typography>
+        <Typography variant="h4">Orders</Typography>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
@@ -159,7 +128,7 @@ export default function ProductsPage() {
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
           >
-            Add Product
+            Add Order
           </Button>
         </Stack>
       </Stack>
@@ -176,9 +145,7 @@ export default function ProductsPage() {
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell
-                    sortDirection={orderBy === 'name' ? order : false}
-                  >
+                  <TableCell sortDirection={orderBy === 'name' ? order : false}>
                     <TableSortLabel
                       active={orderBy === 'name'}
                       direction={orderBy === 'name' ? order : 'asc'}
@@ -187,49 +154,39 @@ export default function ProductsPage() {
                       Name
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>SKU</TableCell>
-                  <TableCell>Stock</TableCell>
+                  <TableCell>Quantity</TableCell>
                   <TableCell>Price</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Added Date</TableCell>
+                  <TableCell>Order Status</TableCell>
+                  <TableCell>Date of Order</TableCell>
                   <TableCell>Actions</TableCell>
+                  <TableCell>Payment Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <TableRow
-                      key={row.id}
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      selected={selected.indexOf(row.name) !== -1}
-                    >
-                      <TableCell>{row.product_name}</TableCell>
-                      <TableCell>{row.sku_code}</TableCell>
-                      <TableCell>{row.stock_qty}</TableCell>
-                      <TableCell>{row.regular_price}</TableCell>
-                      <TableCell>{row.CategoryId}</TableCell>
+                    <TableRow key={row.id} hover role="checkbox" tabIndex={-1}>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.qty}</TableCell>
+                      <TableCell>{row.price}</TableCell>
+                      <TableCell>{row.order_status}</TableCell>
                       <TableCell>{new Date(row.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <EditIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleEdit(row)}
-                          />
-                          <DeleteIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleDelete(row)}
-                          />
-                        </Stack>
+                        <Button onClick={() => handleAcceptOrder(row.id)} color="primary">
+                          Accept
+                        </Button>
+                        <Button onClick={() => handleDeclineOrder(row.id)} color="secondary">
+                          Decline
+                        </Button>
                       </TableCell>
+                      <TableCell><Button color={row.payment_status === "Success" ? "success" : "error"}>{row.payment_status}</Button></TableCell>
                     </TableRow>
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, farmingProducts.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, allOrder.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -241,7 +198,7 @@ export default function ProductsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={farmingProducts.length}
+          count={allOrder.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

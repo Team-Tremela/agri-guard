@@ -6,26 +6,61 @@ const icon = (name) => (
   <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
 );
 
+// Example navConfig
 const navConfig = [
   {
     title: 'dashboard',
     path: '/',
     icon: icon('ic_analytics'),
   },
-  // {
-  //   title: 'user',
-  //   path: '/user',
-  //   icon: icon('ic_user'),
-  // },
   {
     title: 'product',
     path: '/products',
     icon: icon('ic_cart'),
+    subitems: [
+      {
+        title: 'All Products',
+        path: '/products',
+        icon: icon('ic_cart'),
+      },
+      {
+        title: 'category',
+        path: '/products/category',
+        icon: icon('ic_category'),
+      },
+      {
+        title: 'attributes',
+        path: '/products/attributes',
+        icon: icon('ic_attributes'),
+      },
+      {
+        title: 'tax profile',
+        path: '/products/tax-profile',
+        icon: icon('ic_tax'),
+      },
+    ],
   },
   {
-    title: 'blog',
-    path: '/blog',
+    title: 'Order',
+    path: '/order',
     icon: icon('ic_blog'),
+    subitems: [
+      {
+        title: 'Order List',
+        path: '/order',
+        icon: icon('ic_cart'),
+      },
+      {
+        title: 'Customers',
+        path: '/order/customers',
+        icon: icon('ic_category'),
+      },
+      {
+        title: 'Reports',
+        path: '/order/reports',
+        icon: icon('ic_attributes'),
+      }
+    ],
   },
   {
     title: 'login',

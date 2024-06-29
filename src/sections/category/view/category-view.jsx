@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -13,21 +13,19 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { url, token } from 'src/sections/url';
+
 import { farmingProducts } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import axios from 'axios';
+
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
-export default function ProductsPage() {
+export default function CategoryPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected] = useState([]);
@@ -35,32 +33,12 @@ export default function ProductsPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
-  const [allProduts, setAllProducts] = useState([]);
+
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-  useEffect(() => {
-    const getAllProducts = () => {
-      axios.get(`${url}/product/fetch-all`, {
-        headers: {
-          Authorization: `${token}`
-        }
-      })
-        .then((res) => {
-          console.log(res, "res");
-          if (res.data.success) {
-            setAllProducts(res.data.data);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    };
-
-    getAllProducts();
-  }, []);
 
   // const handleSelectAllClick = (event) => {
   //   if (event.target.checked) {
@@ -111,21 +89,8 @@ export default function ProductsPage() {
     setOpenModal(false);
   };
 
-  const handleEdit = (product) => {
-    // Handle edit product logic here
-    console.log('Edit product', product);
-    setOpenModal(true);
-    // Pass the product details to the modal or set in state
-  };
-
-  const handleDelete = (product) => {
-    // Handle delete product logic here
-    console.log('Delete product', product);
-    // Add your delete logic, such as an API call to delete the product
-  };
-
   const dataFiltered = applyFilter({
-    inputData: allProduts,
+    inputData: farmingProducts,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -135,7 +100,7 @@ export default function ProductsPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Products</Typography>
+        <Typography variant="h4">Category</Typography>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
@@ -192,7 +157,6 @@ export default function ProductsPage() {
                   <TableCell>Price</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Added Date</TableCell>
-                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -206,24 +170,12 @@ export default function ProductsPage() {
                       tabIndex={-1}
                       selected={selected.indexOf(row.name) !== -1}
                     >
-                      <TableCell>{row.product_name}</TableCell>
-                      <TableCell>{row.sku_code}</TableCell>
-                      <TableCell>{row.stock_qty}</TableCell>
-                      <TableCell>{row.regular_price}</TableCell>
-                      <TableCell>{row.CategoryId}</TableCell>
-                      <TableCell>{new Date(row.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <EditIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleEdit(row)}
-                          />
-                          <DeleteIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleDelete(row)}
-                          />
-                        </Stack>
-                      </TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.sku}</TableCell>
+                      <TableCell>{row.stock}</TableCell>
+                      <TableCell>{row.price}</TableCell>
+                      <TableCell>{row.category}</TableCell>
+                      <TableCell>{new Date(row.addedDate).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}
 
