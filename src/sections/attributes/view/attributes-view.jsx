@@ -24,9 +24,9 @@ import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import CategoryModal from './CategoryModal';
+import AttributesModal from './AttributesModal';
 
-export default function CategoryPage() {
+export default function AttributesPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected] = useState([]);
@@ -40,7 +40,7 @@ export default function CategoryPage() {
   const [deleteData, setDeleteData] = useState({});
 
   const getAllCategory = () => {
-    axios.get(`${url}/category/fetch-all`, {
+    axios.get(`${url}/attribute/fetch-all`, {
       headers: {
         Authorization: `${token}`
       }
@@ -145,7 +145,7 @@ export default function CategoryPage() {
                       direction={orderBy === 'name' ? order : 'asc'}
                       onClick={(event) => handleSort(event, 'name')}
                     >
-                      Category Name
+                      Name
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>Actions</TableCell>
@@ -200,7 +200,7 @@ export default function CategoryPage() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllCategory={getAllCategory} />
+      <AttributesModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllCategory={getAllCategory} />
       <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllCategory={getAllCategory} />
     </Container>
   );

@@ -14,6 +14,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
 import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import DeleteModal from 'src/sections/Modal/deleteModal';
@@ -24,9 +25,9 @@ import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import CategoryModal from './CategoryModal';
+import CategoryModal from './cropModal';
 
-export default function CategoryPage() {
+export default function CropPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected] = useState([]);
@@ -35,12 +36,12 @@ export default function CategoryPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
-  const [allCategory, setAllCategory] = useState([]);
+  const [allFarmers, setAllFarmers] = useState([]);
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
 
-  const getAllCategory = () => {
-    axios.get(`${url}/category/fetch-all`, {
+  const getAllFarmers = () => {
+    axios.get(`${url}/farmer/fetch-total-farmer`, {
       headers: {
         Authorization: `${token}`
       }
@@ -48,7 +49,7 @@ export default function CategoryPage() {
       .then((res) => {
         console.log(res, "res");
         if (res.data.success) {
-          setAllCategory(res.data.data);
+          setAllFarmers(res.data.data);
         }
       })
       .catch((error) => {
@@ -56,7 +57,7 @@ export default function CategoryPage() {
       });
   };
   useEffect(() => {
-    getAllCategory();
+    getAllFarmers();
   }, []);
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -90,13 +91,16 @@ export default function CategoryPage() {
     setOpenDltModal(false);
   }
   const dataFiltered = applyFilter({
-    inputData: allCategory,
+    inputData: allFarmers,
     comparator: getComparator(order, orderBy),
     filterName,
   });
   const handleEdit = (val) => {
     setOpenModal(true);
     setCatEditData(val);
+  }
+  const handleView = (data) => {
+
   }
   const handleDelete = (val) => {
     setOpenDltModal(true);
@@ -145,10 +149,13 @@ export default function CategoryPage() {
                       direction={orderBy === 'name' ? order : 'asc'}
                       onClick={(event) => handleSort(event, 'name')}
                     >
-                      Category Name
+                      Farmer Name
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell>Farmer Id</TableCell>
+                  <TableCell>Mobile</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -163,15 +170,22 @@ export default function CategoryPage() {
                       selected={selected.indexOf(row.name) !== -1}
                     >
                       <TableCell>{i + 1}</TableCell>
-                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{`${row.first_name} ${row.last_name}`}</TableCell>
+                      <TableCell>{row.farmer_id}</TableCell>
+                      <TableCell>{row.mobile_no}</TableCell>
+                      <TableCell>{row.email_id}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <EditIcon
                             style={{ cursor: 'pointer' }}
                             onClick={() => handleEdit(row)}
                           />
+                          <VisibilityIcon
+                            style={{ cursor: 'pointer', color: "green" }}
+                            onClick={() => handleView(row)}
+                          />
                           <DeleteIcon
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: 'pointer', color: "red" }}
                             onClick={() => handleDelete(row)}
                           />
                         </Stack>
@@ -181,7 +195,7 @@ export default function CategoryPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, allCategory.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, allFarmers.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -193,15 +207,15 @@ export default function CategoryPage() {
         <TablePagination
           page={page}
           component="div"
-          count={allCategory.length}
+          count={allFarmers.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllCategory={getAllCategory} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllCategory={getAllCategory} />
+      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllFarmers={getAllFarmers} />
     </Container>
   );
 }

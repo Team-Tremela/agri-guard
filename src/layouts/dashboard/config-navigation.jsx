@@ -33,11 +33,11 @@ const navConfig = [
         path: '/products/attributes',
         icon: icon('ic_attributes'),
       },
-      {
-        title: 'tax profile',
-        path: '/products/tax-profile',
-        icon: icon('ic_tax'),
-      },
+      // {
+      //   title: 'tax profile',
+      //   path: '/products/tax-profile',
+      //   icon: icon('ic_tax'),
+      // },
     ],
   },
   {
@@ -50,20 +50,35 @@ const navConfig = [
         path: '/order',
         icon: icon('ic_cart'),
       },
-      {
-        title: 'Customers',
-        path: '/order/customers',
-        icon: icon('ic_category'),
-      },
+      // {
+      //   title: 'Customers',
+      //   path: '/order/customers',
+      //   icon: icon('ic_category'),
+      // },
       {
         title: 'Reports',
         path: '/order/reports',
-        icon: icon('ic_attributes'),
+        icon: icon('ic_reports'),
       }
     ],
   },
   {
-    title: 'login',
+    title: 'Register Farmers',
+    path: '/registered-farmers',
+    icon: icon('ic_farmer'),
+  },
+  {
+    title: 'Soil Testing',
+    path: '/soil-testing',
+    icon: icon('ic_soil_testing'),
+  },
+  {
+    title: 'Crop Doctor',
+    path: '/crop-doctor',
+    icon: icon('ic_crop'),
+  },
+  {
+    title: 'Login',
     path: '/login',
     icon: icon('ic_lock'),
   },

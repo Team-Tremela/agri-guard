@@ -106,22 +106,7 @@ export default function OrderPage() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Orders</Typography>
         <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:cloud-upload-fill" />}
-            onClick={() => console.log('Import button clicked')}
-          >
-            Import
-          </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:cloud-download-fill" />}
-            onClick={() => console.log('Export button clicked')}
-          >
-            Export
-          </Button>
+          
           <Button
             variant="contained"
             color="inherit"

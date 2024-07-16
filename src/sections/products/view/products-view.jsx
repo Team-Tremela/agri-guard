@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -27,6 +29,16 @@ import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
+const secondaryModalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
 export default function ProductsPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -36,58 +48,33 @@ export default function ProductsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [allProduts, setAllProducts] = useState([]);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [dltId, setDltId] = useState('');
+  const [editData, setEditData] = useState({});
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-  useEffect(() => {
-    const getAllProducts = () => {
-      axios.get(`${url}/product/fetch-all`, {
-        headers: {
-          Authorization: `${token}`
+  const getAllProducts = () => {
+    axios.get(`${url}/product/fetch-all`, {
+      headers: {
+        Authorization: `${token}`
+      }
+    })
+      .then((res) => {
+        console.log(res, "res");
+        if (res.data.success) {
+          setAllProducts(res.data.data);
         }
       })
-        .then((res) => {
-          console.log(res, "res");
-          if (res.data.success) {
-            setAllProducts(res.data.data);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    };
-
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  useEffect(() => {
     getAllProducts();
   }, []);
-
-  // const handleSelectAllClick = (event) => {
-  //   if (event.target.checked) {
-  //     const newSelecteds = farmingProducts.map((n) => n.name);
-  //     setSelected(newSelecteds);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
-
-  // const handleClick = (event, name) => {
-  //   const selectedIndex = selected.indexOf(name);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, name);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(
-  //       selected.slice(0, selectedIndex),
-  //       selected.slice(selectedIndex + 1)
-  //     );
-  //   }
-  //   setSelected(newSelected);
-  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -105,6 +92,7 @@ export default function ProductsPage() {
 
   const handleOpenModal = () => {
     setOpenModal(true);
+    setEditData({});
   };
 
   const handleCloseModal = () => {
@@ -114,16 +102,29 @@ export default function ProductsPage() {
   const handleEdit = (product) => {
     // Handle edit product logic here
     console.log('Edit product', product);
+    setEditData(product);
     setOpenModal(true);
     // Pass the product details to the modal or set in state
   };
 
   const handleDelete = (product) => {
-    // Handle delete product logic here
-    console.log('Delete product', product);
-    // Add your delete logic, such as an API call to delete the product
+    setDeleteModal(true);
+    setDltId(product.id)
   };
-
+  const handleDeleteConfirm = () => {
+    axios.delete(`${url}/product/delete/${dltId}`, {
+      headers: {
+        Authorization: `${token}`
+      }
+    }).then((res) => {
+      if (res.data.success) {
+        setDeleteModal(false);
+        getAllProducts();
+      }
+    }).catch((err) => {
+      console.error(err);
+    }) 
+  }
   const dataFiltered = applyFilter({
     inputData: allProduts,
     comparator: getComparator(order, orderBy),
@@ -249,7 +250,31 @@ export default function ProductsPage() {
         />
       </Card>
 
-      <ProductModal open={openModal} handleClose={handleCloseModal} />
+      <ProductModal open={openModal} editData={editData} getAllProducts={getAllProducts} handleClose={handleCloseModal} />
+      {/* delete modal */}
+      <Modal
+        open={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={secondaryModalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Confirm Deletion
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Are you sure you want to delete this item?
+          </Typography>
+          <Box display="flex" justifyContent="flex-end" mt={2}>
+            <Button onClick={() => setDeleteModal(false)} variant="contained" color="secondary" sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteConfirm} variant="contained" color="primary">
+              Confirm
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Container>
   );
 }
