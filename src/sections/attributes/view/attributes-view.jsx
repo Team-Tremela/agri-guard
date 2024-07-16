@@ -39,7 +39,7 @@ export default function AttributesPage() {
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
 
-  const getAllCategory = () => {
+  const getAllAttributes = () => {
     axios.get(`${url}/attribute/fetch-all`, {
       headers: {
         Authorization: `${token}`
@@ -56,7 +56,7 @@ export default function AttributesPage() {
       });
   };
   useEffect(() => {
-    getAllCategory();
+    getAllAttributes();
   }, []);
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -98,16 +98,15 @@ export default function AttributesPage() {
     setOpenModal(true);
     setCatEditData(val);
   }
-  const handleDelete = (val) => {
-    setOpenDltModal(true);
-    setDeleteData(val)
+  const handleDelete = async (val) => {
+    setDeleteData(val);
   }
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Category</Typography>
+        <Typography variant="h4">Attribute</Typography>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
@@ -115,7 +114,7 @@ export default function AttributesPage() {
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
           >
-            Add Category
+            Add Attribute
           </Button>
         </Stack>
       </Stack>
@@ -148,6 +147,9 @@ export default function AttributesPage() {
                       Name
                     </TableSortLabel>
                   </TableCell>
+                  <TableCell>value</TableCell>
+                  <TableCell>Regular Price</TableCell>
+                  <TableCell>Sales Price</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -164,6 +166,9 @@ export default function AttributesPage() {
                     >
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.value}</TableCell>
+                      <TableCell>{row.regular_price}</TableCell>
+                      <TableCell>{row.sale_price}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <EditIcon
@@ -200,8 +205,8 @@ export default function AttributesPage() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <AttributesModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllCategory={getAllCategory} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllCategory={getAllCategory} />
+      <AttributesModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllAttributes={getAllAttributes} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllAttributes={getAllAttributes} endPoint='attribute' />
     </Container>
   );
 }

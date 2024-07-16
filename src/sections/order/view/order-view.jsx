@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -19,7 +20,8 @@ import TablePagination from '@mui/material/TablePagination';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import { token, url } from 'src/sections/url';
+import { url, token } from 'src/sections/url';
+
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';

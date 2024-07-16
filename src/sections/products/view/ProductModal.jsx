@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Radio from '@mui/material/Radio';
 import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
+import Card from '@mui/material/Card';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
-// import Rating from '@mui/material/Rating';
+import Rating from '@mui/material/Rating';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
-import FormControl from '@mui/material/FormControl';
-// import CardContent from '@mui/material/CardContent';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import FormControl from '@mui/material/FormControl';
+import CardContent from '@mui/material/CardContent';
+import DeleteIcon from '@mui/icons-material/Delete';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { token, url } from 'src/sections/url';
-import axios from 'axios';
+
+import { url, token } from 'src/sections/url';
 
 const mainModalStyle = {
     position: 'absolute',
@@ -88,7 +89,7 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
     const handleCategoryModalOpen = () => setCategoryModalOpen(true);
     const handleCategoryModalClose = () => setCategoryModalOpen(false);
 
-    const handleAttributeModalOpen = () => setAttributeModalOpen(true);
+    // const handleAttributeModalOpen = () => setAttributeModalOpen(true);
     const handleAttributeModalClose = () => setAttributeModalOpen(false);
 
     const handleTaxProfileModalOpen = () => setTaxProfileModalOpen(true);
@@ -135,7 +136,7 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
     };
 
     const handleMultipleFilesChange = (e, setImagesCallback) => {
-        const files = e.target.files;
+        const files = e.target.files[0];
         const fileArray = Array.from(files);
         const promises = fileArray.map(file =>
             new Promise((resolve, reject) => {
@@ -405,8 +406,164 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             inputProps={{ multiple: true }}
                             onChange={(e) => handleMultipleFilesChange(e, setProductGallery)}
                         />
-                        <Button type="submit" variant="contained" color="primary" fullWidth>
-                            {Object.keys(editData).length === 0 ? 'Add Product' : 'Update Product'}
+
+                        <Box display="flex" justifyContent="space-between" marginY={2}>
+                            <TextField
+                                label="Regular Price (INR)"
+                                variant="outlined"
+                                type="number"
+                                fullWidth
+                                margin="normal"
+                                value={regularPrice}
+                                onChange={(e) => setRegularPrice(e.target.value)}
+                            />
+                            <TextField
+                                label="Sale Price (INR)"
+                                variant="outlined"
+                                type="number"
+                                fullWidth
+                                margin="normal"
+                                sx={{ marginLeft: 2 }}
+                                value={salePrice}
+                                onChange={(e) => setSalePrice(e.target.value)}
+                            />
+                        </Box>
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Product Category</InputLabel>
+                            <Select
+                                variant="outlined"
+                                label="Product Category"
+                                value={productCategory}
+                                onChange={(e) => setProductCategory(e.target.value)}
+                            >
+                                <MenuItem value={1}>Category 1</MenuItem>
+                                <MenuItem value={2}>Category 2</MenuItem>
+                            </Select>
+                            <Button onClick={handleCategoryModalOpen} sx={{ mt: 2 }}>
+                                Add Category
+                            </Button>
+                        </FormControl>
+                        <TextField
+                            fullWidth
+                            label="Product SKU Code"
+                            margin="normal"
+                            variant="outlined"
+                            value={skuCode}
+                            onChange={(e) => setSkuCode(e.target.value)}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Stock Quantity"
+                            margin="normal"
+                            variant="outlined"
+                            type="number"
+                            value={stockQuantity}
+                            onChange={(e) => setStockQuantity(e.target.value)}
+                        />
+                        <FormControl component="fieldset" margin="normal">
+                            <Typography>Stock Status</Typography>
+                            <RadioGroup
+                                row
+                                value={stockStatus}
+                                onChange={(e) => setStockStatus(e.target.value)}
+                            >
+                                <FormControlLabel value="available" control={<Radio />} label="Available" />
+                                <FormControlLabel value="not_available" control={<Radio />} label="Not Available" />
+                            </RadioGroup>
+                        </FormControl>
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Tax Category</InputLabel>
+                            <Select
+                                variant="outlined"
+                                label="Tax Category"
+                                value={taxCategory}
+                                onChange={(e) => setTaxCategory(e.target.value)}
+                            >
+                                <MenuItem value={1}>Tax Type 1</MenuItem>
+                                <MenuItem value={2}>Tax Type 2</MenuItem>
+                            </Select>
+                            <Button onClick={handleTaxProfileModalOpen} sx={{ mt: 2 }}>
+                                Add Tax Profile
+                            </Button>
+                        </FormControl>
+                        {attributes.map((attr, index) => (
+                            <Box key={index} mb={2} position="relative">
+                                <TextField
+                                    fullWidth
+                                    label={`Attribute Name ${index + 1}`}
+                                    margin="normal"
+                                    variant="outlined"
+                                    value={attr.name}
+                                    onChange={(e) => handleAttributeChange(index, 'name', e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label={`Attribute Value ${index + 1}`}
+                                    margin="normal"
+                                    variant="outlined"
+                                    value={attr.value}
+                                    onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label={`Regular Price ${index + 1} (INR)`}
+                                    margin="normal"
+                                    variant="outlined"
+                                    type="number"
+                                    value={attr.regular_price}
+                                    onChange={(e) => handleAttributeChange(index, 'regular_price', e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label={`Sale Price ${index + 1} (INR)`}
+                                    margin="normal"
+                                    variant="outlined"
+                                    type="number"
+                                    value={attr.sale_price}
+                                    onChange={(e) => handleAttributeChange(index, 'sale_price', e.target.value)}
+                                />
+                                {index > 0 && <IconButton
+                                    onClick={() => handleRemoveAttribute(index)}
+                                    style={{ position: 'absolute', top: '-25px', right: 0 }}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>}
+                            </Box>
+                        ))}
+                        <Button onClick={handleAddAttribute} sx={{ mt: 2, mb: 2 }}>
+                            Add More Attributes
+                        </Button>
+                        <TextField
+                            fullWidth
+                            label="Delivery Charges Settings"
+                            margin="normal"
+                            variant="outlined"
+                            value={deliveryCharges}
+                            onChange={(e) => setDeliveryCharges(e.target.value)}
+                        />
+                        <Typography variant="h6" component="h3" sx={{ mt: 4, mb: 2 }}>
+                            Customer Reviews
+                        </Typography>
+                        {/* {reviews.map((review) => (
+                                <Card key={review.id} sx={{ mb: 2 }}>
+                                    <CardContent>
+                                        <Typography variant="subtitle1">
+                                            {review.customerName}
+                                        </Typography>
+                                        <Rating value={review.rating} readOnly />
+                                        <Typography variant="body2" color="textSecondary">
+                                            {review.comment}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            ))} */}
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            sx={{ marginTop: 2 }}
+                        >
+                            Save product
                         </Button>
                     </form>
                 </Box>

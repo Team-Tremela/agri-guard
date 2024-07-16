@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
 import Modal from '@mui/material/Modal';
@@ -11,18 +12,20 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
+import EditIcon from '@mui/icons-material/Edit';
 import Typography from '@mui/material/Typography';
+import DeleteIcon from '@mui/icons-material/Delete';
 import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { url, token } from 'src/sections/url';
+
 import { farmingProducts } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import axios from 'axios';
+
+import { url, token } from 'src/sections/url';
+
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
@@ -111,8 +114,8 @@ export default function ProductsPage() {
     setDeleteModal(true);
     setDltId(product.id)
   };
-  const handleDeleteConfirm = () => {
-    axios.delete(`${url}/product/delete/${dltId}`, {
+  const handleDeleteConfirm = async () => {
+    await axios.delete(`${url}/product/delete/${dltId}`, {
       headers: {
         Authorization: `${token}`
       }
@@ -123,7 +126,7 @@ export default function ProductsPage() {
       }
     }).catch((err) => {
       console.error(err);
-    }) 
+    })
   }
   const dataFiltered = applyFilter({
     inputData: allProduts,

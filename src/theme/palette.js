@@ -13,17 +13,17 @@ export const grey = {
   500: '#919EAB',
   600: '#637381',
   700: '#454F5B',
-  800: '#212B36',
+  800: '#556B2F',  // Darker shade of green
   900: '#161C24',
 };
 
 export const primary = {
-  lighter: '#D0ECFE',
-  light: '#73BAFB',
-  main: '#1877F2',
-  dark: '#0C44AE',
-  darker: '#042174',
-  contrastText: '#FFFFFF',
+  lighter: '#A4C89B', // Lightened shade
+  light: '#7A915A',  // Light shade
+  main: '#556B2F',   // Main color
+  dark: '#3D4B22',   // Dark shade
+  darker: '#283216', // Darkened shade
+  contrastText: '#FFFFFF', // Contrast text
 };
 
 export const secondary = {

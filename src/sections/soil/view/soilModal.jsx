@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 // import Select from '@mui/material/Select';
-// import Rating from '@mui/material/Rating';
+import Rating from '@mui/material/Rating';
 // import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';

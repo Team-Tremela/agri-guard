@@ -93,10 +93,11 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Logo />
-          <Typography variant="h4">Sign in to Minimal</Typography>
-
-          <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
+          <div style={{display:"flex",justifyContent:"center", marginBottom:"10px"}}>
+            <Logo />
+          </div>
+          <Typography variant="h4" style={{textAlign:"center",marginTop:"20px"}}>Sign in to AgriGuard</Typography>
+          <Typography variant="body2" sx={{ mt: 2 }} style={{textAlign:"center"}}>
             Don’t have an account?
             <Link variant="subtitle2" sx={{ ml: 0.5 }}>
               Get started

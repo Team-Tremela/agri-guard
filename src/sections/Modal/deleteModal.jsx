@@ -17,10 +17,10 @@ const secondaryModalStyle = {
     p: 4,
 };
 /* eslint-disable react/prop-types */
-export default function DeleteModal({ open, handleClose, getAllCategory, deleteData }) {
+export default function DeleteModal({ open, handleClose, getAllCategory, deleteData, endPoint }) {
     const handleDeleteConfirm = (e) => {
         e.preventDefault();
-        axios.delete(`${url}/category/delete/${deleteData.id}`, {
+        axios.delete(`${url}/${endPoint}/delete/${deleteData.id}`, {
             headers: {
                 "Authorization": `${token}`
             }
