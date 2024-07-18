@@ -8,7 +8,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | AgriGuard </title>
+        <title> Dashboard | AgriGuard  </title>
       </Helmet>
 
       <AppView />
