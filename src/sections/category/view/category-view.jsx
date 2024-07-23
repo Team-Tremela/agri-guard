@@ -201,7 +201,7 @@ export default function CategoryPage() {
         />
       </Card>
       <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllCategory={getAllCategory} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllCategory={getAllCategory} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllCategory} endPoint="category" />
     </Container>
   );
 }

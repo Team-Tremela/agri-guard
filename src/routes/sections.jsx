@@ -14,6 +14,7 @@ export const OrderPage = lazy(() => import('src/pages/order'));
 export const FarmerPage = lazy(() => import('src/pages/farmer'));
 export const SoilPage = lazy(() => import('src/pages/soilTest'));
 export const CropPage = lazy(() => import('src/pages/crop'));
+export const CarbonPage = lazy(() => import('src/pages/carbonCredit'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
 // ----------------------------------------------------------------------
@@ -36,6 +37,7 @@ export default function Router() {
         { path: 'products/category', element: <CategoryPage /> },
         { path: 'products/attributes', element: <AttributesPage /> },
         { path: 'registered-farmers', element: <FarmerPage /> },
+        { path: 'carbon-credit', element: <CarbonPage /> },
         { path: 'soil-testing', element: <SoilPage /> },
         { path: 'crop-doctor', element: <CropPage /> },
         { path: 'order', element: <OrderPage /> },
@@ -45,14 +47,7 @@ export default function Router() {
       path: '/',
       element: <LoginPage />,
     },
-    {
-      path: '404',
-      element: <Page404 />,
-    },
-    {
-      path: '*',
-      element: <Navigate to="/404" replace />,
-    },
+
   ]);
 
   return routes;

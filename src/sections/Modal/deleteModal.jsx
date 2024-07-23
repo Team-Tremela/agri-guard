@@ -17,7 +17,7 @@ const secondaryModalStyle = {
     p: 4,
 };
 /* eslint-disable react/prop-types */
-export default function DeleteModal({ open, handleClose, getAllCategory, deleteData, endPoint }) {
+export default function DeleteModal({ open, handleClose, getData, deleteData, endPoint }) {
     const handleDeleteConfirm = (e) => {
         e.preventDefault();
         axios.delete(`${url}/${endPoint}/delete/${deleteData.id}`, {
@@ -25,8 +25,9 @@ export default function DeleteModal({ open, handleClose, getAllCategory, deleteD
                 "Authorization": `${token}`
             }
         }).then((res) => {
-            if (res.data.success) {
-                getAllCategory();
+            console.log(res, "dlt res")
+            if (res.data.success || res.success) {
+                getData();
                 handleClose();
             }
         })
@@ -38,7 +39,6 @@ export default function DeleteModal({ open, handleClose, getAllCategory, deleteD
         <Modal
             open={open}
             onClose={() => handleClose()}
-
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >

@@ -215,7 +215,7 @@ export default function CropPage() {
         />
       </Card>
       <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllFarmers={getAllFarmers} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllFarmers} endPoint="crop-name" />
     </Container>
   );
 }

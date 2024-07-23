@@ -64,54 +64,44 @@ const navConfig = [
   },
   {
     title: 'Register Farmers',
-    path: '/registered-farmers',
+    path: '/dashboard/registered-farmers',
     icon: icon('ic_farmer'),
   },
   {
     title: 'Soil Testing',
-    path: '/soil-testing',
-    icon: icon('ic_soil_testing'),
-  },
-  {
-    title: 'Crop Doctor',
-    path: '/crop-doctor',
-    icon: icon('ic_crop'),
-  },
-  {
-    title: 'Login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Soil Testing',
-    path: '#',
+    path: '/dashboard/soil-testing',
     icon: icon('ic_soil'),
   },
-  {
-    title: 'Crop doctor',
-    path: '#',
-    icon: icon('ic_doctor'),
-  },
+  // {
+  //   title: 'Crop Doctor',
+  //   path: '/dashboard/crop-doctor',
+  //   icon: icon('ic_crop'),
+  // },
+  // {
+  //   title: 'Login',
+  //   path: '/login',
+  //   icon: icon('ic_lock'),
+  // },
   {
     title: 'Carbon credit',
-    path: '#',
+    path: '/dashboard/carbon-credit',
     icon: icon('ic_carbon'),
   },
-  {
-    title: 'Blogs/Crop Guide',
-    path: '/dashboard/cropguide',
-    icon: icon('ic_blog2'),
-  },
-  {
-    title: 'Mobile app settings',
-    path: '#',
-    icon: icon('ic_settings'),
-  },
-  {
-    title: 'Users',
-    path: '#',
-    icon: icon('ic_users'),
-  },
+  // {
+  //   title: 'Blogs/Crop Guide',
+  //   path: '/dashboard/cropguide',
+  //   icon: icon('ic_blog2'),
+  // },
+  // {
+  //   title: 'Mobile app settings',
+  //   path: '#',
+  //   icon: icon('ic_settings'),
+  // },
+  // {
+  //   title: 'Users',
+  //   path: '#',
+  //   icon: icon('ic_users'),
+  // },
   // {
   //   title: 'Login',
   //   path: '/login',

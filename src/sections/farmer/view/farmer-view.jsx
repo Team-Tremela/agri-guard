@@ -104,7 +104,7 @@ export default function FarmerPage() {
   }
   const handleDelete = (val) => {
     setOpenDltModal(true);
-    setDeleteData(val)
+    setDeleteData({ id: val })
   }
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -113,14 +113,14 @@ export default function FarmerPage() {
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Farmers</Typography>
         <Stack direction="row" spacing={2}>
-          <Button
+          {/* <Button
             variant="contained"
             color="inherit"
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
           >
             Add Farmer
-          </Button>
+          </Button> */}
         </Stack>
       </Stack>
 
@@ -176,17 +176,17 @@ export default function FarmerPage() {
                       <TableCell>{row.email_id}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
-                          <EditIcon
+                          {/* <EditIcon
                             style={{ cursor: 'pointer' }}
                             onClick={() => handleEdit(row)}
-                          />
+                          /> */}
                           <VisibilityIcon
                             style={{ cursor: 'pointer', color: "green" }}
                             onClick={() => handleView(row)}
                           />
                           <DeleteIcon
                             style={{ cursor: 'pointer', color: "red" }}
-                            onClick={() => handleDelete(row)}
+                            onClick={() => handleDelete(row.farmer_id)}
                           />
                         </Stack>
                       </TableCell>
@@ -215,7 +215,7 @@ export default function FarmerPage() {
         />
       </Card>
       <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllFarmers={getAllFarmers} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} endPoint="farmer" getData={getAllFarmers} />
     </Container>
   );
 }

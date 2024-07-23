@@ -36,12 +36,12 @@ export default function SoilPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
-  const [allFarmers, setAllFarmers] = useState([]);
+  const [allSoilTests, setAllSoilTests] = useState([]);
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
 
-  const getAllFarmers = () => {
-    axios.get(`${url}/farmer/fetch-total-farmer`, {
+  const getAllSoilTests = () => {
+    axios.get(`${url}/soil-test/fetch-soil-test`, {
       headers: {
         Authorization: `${token}`
       }
@@ -49,7 +49,7 @@ export default function SoilPage() {
       .then((res) => {
         console.log(res, "res");
         if (res.data.success) {
-          setAllFarmers(res.data.data);
+          setAllSoilTests(res.data.data);
         }
       })
       .catch((error) => {
@@ -57,14 +57,13 @@ export default function SoilPage() {
       });
   };
   useEffect(() => {
-    getAllFarmers();
+    getAllSoilTests();
   }, []);
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -91,7 +90,7 @@ export default function SoilPage() {
     setOpenDltModal(false);
   }
   const dataFiltered = applyFilter({
-    inputData: allFarmers,
+    inputData: allSoilTests,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -111,16 +110,16 @@ export default function SoilPage() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Category</Typography>
+        <Typography variant="h4">Soil Tests</Typography>
         <Stack direction="row" spacing={2}>
-          <Button
+          {/* <Button
             variant="contained"
             color="inherit"
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
           >
-            Add Category
-          </Button>
+            Add Soil Test
+          </Button> */}
         </Stack>
       </Stack>
 
@@ -136,25 +135,26 @@ export default function SoilPage() {
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell
-
-                  >
-                    #
-                  </TableCell>
-                  <TableCell
-                    sortDirection={orderBy === 'name' ? order : false}
-                  >
+                  <TableCell>#</TableCell>
+                  <TableCell sortDirection={orderBy === 'first_name' ? order : false}>
                     <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={(event) => handleSort(event, 'name')}
+                      active={orderBy === 'first_name'}
+                      direction={orderBy === 'first_name' ? order : 'asc'}
+                      onClick={(event) => handleSort(event, 'first_name')}
                     >
                       Farmer Name
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>Farmer Id</TableCell>
+                  <TableCell>Address</TableCell>
+                  <TableCell>Pincode</TableCell>
+                  <TableCell>District</TableCell>
                   <TableCell>Mobile</TableCell>
-                  <TableCell>Email</TableCell>
+                  <TableCell>Land Size</TableCell>
+                  <TableCell>Land Type</TableCell>
+                  <TableCell>Crop Name</TableCell>
+                  <TableCell>Soil Type</TableCell>
+                  <TableCell>Testing Status</TableCell>
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -167,13 +167,20 @@ export default function SoilPage() {
                       hover
                       role="checkbox"
                       tabIndex={-1}
-                      selected={selected.indexOf(row.name) !== -1}
+                      selected={selected.indexOf(row.first_name) !== -1}
                     >
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{`${row.first_name} ${row.last_name}`}</TableCell>
                       <TableCell>{row.farmer_id}</TableCell>
+                      <TableCell>{row.address}</TableCell>
+                      <TableCell>{row.pincode}</TableCell>
+                      <TableCell>{row.district}</TableCell>
                       <TableCell>{row.mobile_no}</TableCell>
-                      <TableCell>{row.email_id}</TableCell>
+                      <TableCell>{row.land_size}</TableCell>
+                      <TableCell>{row.land_type}</TableCell>
+                      <TableCell>{row.crop_name}</TableCell>
+                      <TableCell>{row.soil_type}</TableCell>
+                      <TableCell>{row.testing_status}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <EditIcon
@@ -195,7 +202,7 @@ export default function SoilPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, allFarmers.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, allSoilTests.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -207,15 +214,15 @@ export default function SoilPage() {
         <TablePagination
           page={page}
           component="div"
-          count={allFarmers.length}
+          count={allSoilTests.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getAllFarmers={getAllFarmers} />
+      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllSoilTests={getAllSoilTests} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllSoilTests} endPoint="soil-test" />
     </Container>
   );
 }

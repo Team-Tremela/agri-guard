@@ -24,9 +24,9 @@ import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import AttributesModal from './AttributesModal';
+import CarbonModal from './CarbonModal';
 
-export default function AttributesPage() {
+export default function CarbonPage() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected] = useState([]);
@@ -35,12 +35,12 @@ export default function AttributesPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
-  const [allCategory, setAllCategory] = useState([]);
-  const [catEditData, setCatEditData] = useState({});
+  const [allCarbonCredits, setAllCarbonCredits] = useState([]);
+  const [carbonEditData, setCarbonEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
 
-  const getAllAttributes = () => {
-    axios.get(`${url}/attribute/fetch-all`, {
+  const getAllCarbonCredits = () => {
+    axios.get(`${url}/others/fetch-carbon-credit`, {
       headers: {
         Authorization: `${token}`
       }
@@ -48,7 +48,7 @@ export default function AttributesPage() {
       .then((res) => {
         console.log(res, "res");
         if (res.data.success) {
-          setAllCategory(res.data.data);
+          setAllCarbonCredits(res.data.data);
         }
       })
       .catch((error) => {
@@ -56,7 +56,7 @@ export default function AttributesPage() {
       });
   };
   useEffect(() => {
-    getAllAttributes();
+    getAllCarbonCredits();
   }, []);
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -90,23 +90,24 @@ export default function AttributesPage() {
     setOpenDltModal(false);
   }
   const dataFiltered = applyFilter({
-    inputData: allCategory,
+    inputData: allCarbonCredits,
     comparator: getComparator(order, orderBy),
     filterName,
   });
   const handleEdit = (val) => {
     setOpenModal(true);
-    setCatEditData(val);
+    setCarbonEditData(val);
   }
-  const handleDelete = async (val) => {
-    setDeleteData(val);
+  const handleDelete = (val) => {
+    setOpenDltModal(true);
+    setDeleteData(val)
   }
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Attribute</Typography>
+        <Typography variant="h4">Carbon Credits</Typography>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
@@ -114,7 +115,7 @@ export default function AttributesPage() {
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpenModal}
           >
-            Add Attribute
+            Add Carbon Credit
           </Button>
         </Stack>
       </Stack>
@@ -147,9 +148,12 @@ export default function AttributesPage() {
                       Name
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>value</TableCell>
-                  <TableCell>Regular Price</TableCell>
-                  <TableCell>Sales Price</TableCell>
+                  <TableCell>Farmer Id</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Mobile</TableCell>
+                  <TableCell>Address</TableCell>
+                  <TableCell>Farm Size</TableCell>
+                  <TableCell>Land Use</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -166,9 +170,12 @@ export default function AttributesPage() {
                     >
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.value}</TableCell>
-                      <TableCell>{row.regular_price}</TableCell>
-                      <TableCell>{row.sale_price}</TableCell>
+                      <TableCell>{row.farmer_id}</TableCell>
+                      <TableCell>{row.email_id}</TableCell>
+                      <TableCell>{row.mobile_no}</TableCell>
+                      <TableCell>{row.address}</TableCell>
+                      <TableCell>{row.farm_size}</TableCell>
+                      <TableCell>{row.land_use}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <EditIcon
@@ -186,7 +193,7 @@ export default function AttributesPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, allCategory.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, allCarbonCredits.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -198,15 +205,15 @@ export default function AttributesPage() {
         <TablePagination
           page={page}
           component="div"
-          count={allCategory.length}
+          count={allCarbonCredits.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <AttributesModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllAttributes={getAllAttributes} />
-      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllAttributes} endPoint='attribute' />
+      <CarbonModal open={openModal} editData={carbonEditData} handleClose={handleCloseModal} getData={getAllCarbonCredits} />
+      <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllCarbonCredits} endPoint="carbon-credit" />
     </Container>
   );
-} 
+}
