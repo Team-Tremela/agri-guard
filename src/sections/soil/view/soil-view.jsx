@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -13,19 +12,23 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import DeleteModal from 'src/sections/Modal/deleteModal';
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { token, url } from 'src/sections/url';
+import { TailSpin } from 'react-loader-spinner';
+import { toast } from 'react-toastify';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import CategoryModal from './soilModal';
+import DetailModal from './detailModal';
 
 export default function SoilPage() {
   const [page, setPage] = useState(0);
@@ -36,29 +39,36 @@ export default function SoilPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
+  const [openDetailModal, setOpenDetailModal] = useState(false);
   const [allSoilTests, setAllSoilTests] = useState([]);
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
+  const [detailData, setDetailData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const getAllSoilTests = () => {
+    setLoading(true);
     axios.get(`${url}/soil-test/fetch-soil-test`, {
       headers: {
         Authorization: `${token}`
       }
     })
       .then((res) => {
-        console.log(res, "res");
         if (res.data.success) {
+          setLoading(false);
           setAllSoilTests(res.data.data);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.error(error);
       });
   };
+
   useEffect(() => {
     getAllSoilTests();
   }, []);
+
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -86,41 +96,111 @@ export default function SoilPage() {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
+
   const handleCloseDltModal = () => {
     setOpenDltModal(false);
-  }
+  };
+
+  const handleCloseDetailModal = () => {
+    setOpenDetailModal(false);
+  };
+
   const dataFiltered = applyFilter({
     inputData: allSoilTests,
     comparator: getComparator(order, orderBy),
     filterName,
   });
+
   const handleEdit = (val) => {
     setOpenModal(true);
     setCatEditData(val);
-  }
-  const handleView = (data) => {
+  };
 
-  }
+  const handleView = (data) => {
+    setOpenDetailModal(true);
+    setDetailData(data);
+  };
+
   const handleDelete = (val) => {
     setOpenDltModal(true);
-    setDeleteData(val)
-  }
+    setDeleteData(val);
+  };
+
+  const handleStatusChange = (event, row) => {
+    const newStatus = event.target.value;
+
+    // Optimistically update the UI
+    const updatedTests = allSoilTests.map(test =>
+      test.id === row.id ? { ...test, testing_status: newStatus } : test
+    );
+    setAllSoilTests(updatedTests);
+
+    // Call the API to update the status in the backend
+    axios.put(`${url}/soil-test/update/${row.id}`, {
+      testing_status: newStatus
+    }, {
+      headers: {
+        Authorization: `${token}`
+      }
+    })
+      .then((res) => {
+        if (res.data.success) {
+          console.log('Status updated successfully');
+          alert(res.data.message);
+          toast.success(res.message, {
+            position: 'top-right'
+          });
+          getAllSoilTests();
+        } else {
+          alert("errorororororor");
+          toast.error(res.message, {
+            position: 'top-right'
+          });
+          // Optionally, you can revert the status in the UI if the update fails
+          setAllSoilTests(allSoilTests.map(test =>
+            test.id === row.id ? { ...test, testing_status: row.testing_status } : test
+          ));
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating status:', error);
+        // Revert the status in case of an error
+        setAllSoilTests(allSoilTests.map(test =>
+          test.id === row.id ? { ...test, testing_status: row.testing_status } : test
+        ));
+      });
+  };
+
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TailSpin
+            visible
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+          />
+        </Box>
+      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Soil Tests</Typography>
-        <Stack direction="row" spacing={2}>
-          {/* <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpenModal}
-          >
-            Add Soil Test
-          </Button> */}
-        </Stack>
       </Stack>
 
       <Card>
@@ -146,12 +226,7 @@ export default function SoilPage() {
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>Farmer Id</TableCell>
-                  <TableCell>Address</TableCell>
-                  <TableCell>Pincode</TableCell>
-                  <TableCell>District</TableCell>
                   <TableCell>Mobile</TableCell>
-                  <TableCell>Land Size</TableCell>
-                  <TableCell>Land Type</TableCell>
                   <TableCell>Crop Name</TableCell>
                   <TableCell>Soil Type</TableCell>
                   <TableCell>Testing Status</TableCell>
@@ -172,21 +247,25 @@ export default function SoilPage() {
                       <TableCell>{i + 1}</TableCell>
                       <TableCell>{`${row.first_name} ${row.last_name}`}</TableCell>
                       <TableCell>{row.farmer_id}</TableCell>
-                      <TableCell>{row.address}</TableCell>
-                      <TableCell>{row.pincode}</TableCell>
-                      <TableCell>{row.district}</TableCell>
                       <TableCell>{row.mobile_no}</TableCell>
-                      <TableCell>{row.land_size}</TableCell>
-                      <TableCell>{row.land_type}</TableCell>
                       <TableCell>{row.crop_name}</TableCell>
                       <TableCell>{row.soil_type}</TableCell>
-                      <TableCell>{row.testing_status}</TableCell>
+                      <TableCell>
+                        <Select
+                          value={row.testing_status}
+                          onChange={(event) => handleStatusChange(event, row)}
+                          displayEmpty
+                          fullWidth
+                        >
+                          <MenuItem value="Booked">Booked</MenuItem>
+                          <MenuItem value="Document verification">Document Verification</MenuItem>
+                          <MenuItem value="Arrived at lab">Arrived at Lab</MenuItem>
+                          <MenuItem value="Sample collected">Sample Collected</MenuItem>
+                          <MenuItem value="Completed">Completed</MenuItem>
+                        </Select>
+                      </TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>
-                          <EditIcon
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleEdit(row)}
-                          />
                           <VisibilityIcon
                             style={{ cursor: 'pointer', color: "green" }}
                             onClick={() => handleView(row)}
@@ -223,6 +302,7 @@ export default function SoilPage() {
       </Card>
       <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllSoilTests={getAllSoilTests} />
       <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} getData={getAllSoilTests} endPoint="soil-test" />
+      <DetailModal open={openDetailModal} data={detailData} handleClose={handleCloseDetailModal} /> {/* Add this for the details modal */}
     </Container>
   );
 }

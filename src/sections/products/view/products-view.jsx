@@ -18,14 +18,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TableContainer from '@mui/material/TableContainer';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TablePagination from '@mui/material/TablePagination';
-
 import { farmingProducts } from 'src/_mock/user';
-
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-
 import { url, token } from 'src/sections/url';
-
+import { TailSpin } from 'react-loader-spinner';
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
@@ -54,12 +51,15 @@ export default function ProductsPage() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [dltId, setDltId] = useState('');
   const [editData, setEditData] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const handleSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
   const getAllProducts = () => {
+    setLoading(true);
     axios.get(`${url}/product/fetch-all`, {
       headers: {
         Authorization: `${token}`
@@ -73,8 +73,30 @@ export default function ProductsPage() {
       })
       .catch((error) => {
         console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
+
+  const handleDeleteConfirm = async () => {
+    setLoading(true);
+    await axios.delete(`${url}/product/delete/${dltId}`, {
+      headers: {
+        Authorization: `${token}`
+      }
+    }).then((res) => {
+      if (res.data.success) {
+        setDeleteModal(false);
+        getAllProducts();
+      }
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      setLoading(false);
+    });
+  };
+
   useEffect(() => {
     getAllProducts();
   }, []);
@@ -114,20 +136,7 @@ export default function ProductsPage() {
     setDeleteModal(true);
     setDltId(product.id)
   };
-  const handleDeleteConfirm = async () => {
-    await axios.delete(`${url}/product/delete/${dltId}`, {
-      headers: {
-        Authorization: `${token}`
-      }
-    }).then((res) => {
-      if (res.data.success) {
-        setDeleteModal(false);
-        getAllProducts();
-      }
-    }).catch((err) => {
-      console.error(err);
-    })
-  }
+
   const dataFiltered = applyFilter({
     inputData: allProduts,
     comparator: getComparator(order, orderBy),
@@ -138,6 +147,30 @@ export default function ProductsPage() {
 
   return (
     <Container>
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TailSpin
+            visible
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+          />
+        </Box>
+      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Products</Typography>
         <Stack direction="row" spacing={2}>
@@ -172,6 +205,7 @@ export default function ProductsPage() {
         <TableToolbar
           numSelected={selected.length}
           filterName={filterName}
+          placeholder="Products"
           onFilterName={handleFilterByName}
         />
 
@@ -181,12 +215,12 @@ export default function ProductsPage() {
               <TableHead>
                 <TableRow>
                   <TableCell
-                    sortDirection={orderBy === 'name' ? order : false}
+                    sortDirection={orderBy === 'product_name' ? order : false}
                   >
                     <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={(event) => handleSort(event, 'name')}
+                      active={orderBy === 'product_name'}
+                      direction={orderBy === 'product_name' ? order : 'asc'}
+                      onClick={(event) => handleSort(event, 'product_name')}
                     >
                       Name
                     </TableSortLabel>

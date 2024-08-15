@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -21,11 +21,13 @@ import DeleteModal from 'src/sections/Modal/deleteModal';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { token, url } from 'src/sections/url';
+import { TailSpin } from 'react-loader-spinner';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-import CategoryModal from './farmerModal';
+import FarmerModal from './farmerModal';
+import FarmerDetailsModal from './detailModal';
 
 export default function FarmerPage() {
   const [page, setPage] = useState(0);
@@ -39,8 +41,11 @@ export default function FarmerPage() {
   const [allFarmers, setAllFarmers] = useState([]);
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
-
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
+  const [farmerDetails, setFarmerDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
   const getAllFarmers = () => {
+    setLoading(true)
     axios.get(`${url}/farmer/fetch-total-farmer`, {
       headers: {
         Authorization: `${token}`
@@ -49,10 +54,12 @@ export default function FarmerPage() {
       .then((res) => {
         console.log(res, "res");
         if (res.data.success) {
+          setLoading(false);
           setAllFarmers(res.data.data);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.error(error);
       });
   };
@@ -80,9 +87,9 @@ export default function FarmerPage() {
     setFilterName(event.target.value);
   };
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
+  // const handleOpenModal = () => {
+  //   setOpenModal(true);
+  // };
 
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -95,12 +102,13 @@ export default function FarmerPage() {
     comparator: getComparator(order, orderBy),
     filterName,
   });
-  const handleEdit = (val) => {
-    setOpenModal(true);
-    setCatEditData(val);
-  }
+  // const handleEdit = (val) => {
+  //   setOpenModal(true);
+  //   setCatEditData(val);
+  // }
   const handleView = (data) => {
-
+    setFarmerDetails(data.farm_details);
+    setOpenDetailsModal(true); 
   }
   const handleDelete = (val) => {
     setOpenDltModal(true);
@@ -110,6 +118,30 @@ export default function FarmerPage() {
 
   return (
     <Container>
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TailSpin
+            visible
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+          />
+        </Box>
+      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Farmers</Typography>
         <Stack direction="row" spacing={2}>
@@ -128,6 +160,7 @@ export default function FarmerPage() {
         <TableToolbar
           numSelected={selected.length}
           filterName={filterName}
+          placeholder="Farmer"
           onFilterName={handleFilterByName}
         />
 
@@ -142,12 +175,12 @@ export default function FarmerPage() {
                     #
                   </TableCell>
                   <TableCell
-                    sortDirection={orderBy === 'name' ? order : false}
+                    sortDirection={orderBy === 'first_name' ? order : false}
                   >
                     <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={(event) => handleSort(event, 'name')}
+                      active={orderBy === 'first_name'}
+                      direction={orderBy === 'first_name' ? order : 'asc'}
+                      onClick={(event) => handleSort(event, 'first_name')}
                     >
                       Farmer Name
                     </TableSortLabel>
@@ -214,7 +247,8 @@ export default function FarmerPage() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
-      <CategoryModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
+      <FarmerDetailsModal open={openDetailsModal} handleClose={() => setOpenDetailsModal(false)} farmerDetails={farmerDetails} />
+      <FarmerModal open={openModal} editData={catEditData} handleClose={handleCloseModal} getAllFarmers={getAllFarmers} />
       <DeleteModal open={openDltModal} handleClose={handleCloseDltModal} deleteData={deleteData} endPoint="farmer" getData={getAllFarmers} />
     </Container>
   );

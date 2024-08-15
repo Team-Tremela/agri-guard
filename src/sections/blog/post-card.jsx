@@ -13,7 +13,7 @@ import { fDate } from 'src/utils/format-time';
 import { fShortenNumber } from 'src/utils/format-number';
 
 import Iconify from 'src/components/iconify';
-import SvgColor from 'src/components/svg-color';
+import SvgColor from 'src/components/svg-color/svg-color';
 
 // ----------------------------------------------------------------------
 

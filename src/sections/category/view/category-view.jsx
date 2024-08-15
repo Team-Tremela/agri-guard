@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
@@ -20,6 +21,7 @@ import DeleteModal from 'src/sections/Modal/deleteModal';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { token, url } from 'src/sections/url';
+import { TailSpin } from 'react-loader-spinner';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
 import TableEmptyRows from '../table-empty-rows';
@@ -38,20 +40,23 @@ export default function CategoryPage() {
   const [allCategory, setAllCategory] = useState([]);
   const [catEditData, setCatEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
-
+  const [loading, setLoading] = useState(false);
   const getAllCategory = () => {
+    setLoading(true);
     axios.get(`${url}/category/fetch-all`, {
       headers: {
         Authorization: `${token}`
       }
     })
       .then((res) => {
-        console.log(res, "res");
+        // console.log(res, "res");
         if (res.data.success) {
+          setLoading(false);
           setAllCategory(res.data.data);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.error(error);
       });
   };
@@ -106,6 +111,30 @@ export default function CategoryPage() {
 
   return (
     <Container>
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TailSpin
+            visible
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+          />
+        </Box>
+      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Category</Typography>
         <Stack direction="row" spacing={2}>
@@ -124,6 +153,7 @@ export default function CategoryPage() {
         <TableToolbar
           numSelected={selected.length}
           filterName={filterName}
+          placeholder="Category"
           onFilterName={handleFilterByName}
         />
 

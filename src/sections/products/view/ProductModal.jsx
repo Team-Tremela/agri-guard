@@ -2,23 +2,21 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Radio from '@mui/material/Radio';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
-import Rating from '@mui/material/Rating';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
-import CardContent from '@mui/material/CardContent';
-import DeleteIcon from '@mui/icons-material/Delete';
+import MenuItem from '@mui/material/MenuItem';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import { toast } from 'react-toastify';
 import { url, token } from 'src/sections/url';
+import { TailSpin } from 'react-loader-spinner';
 
 const mainModalStyle = {
     position: 'absolute',
@@ -31,7 +29,6 @@ const mainModalStyle = {
     p: 4,
     maxHeight: '90vh',
     overflowY: 'auto',
-    scrollbars: 'none',
     borderRadius: '10px',
 };
 
@@ -47,13 +44,8 @@ const secondaryModalStyle = {
 };
 /* eslint-disable react/prop-types */
 const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
-    const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-    const [attributeModalOpen, setAttributeModalOpen] = useState(false);
-    const [taxProfileModalOpen, setTaxProfileModalOpen] = useState(false);
-
     const [longDescriptions, setLongDescriptions] = useState([{ title: '', description: '' }]);
     const [attributes, setAttributes] = useState([{ name: '', value: '', regular_price: '', sale_price: '' }]);
-
     const [productName, setProductName] = useState('');
     const [shortDescription, setShortDescription] = useState('');
     const [productCategory, setProductCategory] = useState('');
@@ -65,10 +57,32 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
     const [deliveryCharges, setDeliveryCharges] = useState('');
     const [productDisplayImage, setProductDisplayImage] = useState(null);
     const [productGallery, setProductGallery] = useState([]);
-    const [stockStatus, setStockStatus] = useState('available'); // New state for stock status
-
+    const [stockStatus, setStockStatus] = useState('available');
+    const [errors, setErrors] = useState({});
+    const [allCategory, setAllCategory] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const getAllCategory = () => {
+        axios.get(`${url}/category/fetch-all`, {
+            headers: {
+                Authorization: `${token}`
+            }
+        })
+            .then((res) => {
+                console.log(res, "res");
+                if (res.data.success) {
+                    setAllCategory(res.data.data);
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+    useEffect(() => {
+        getAllCategory();
+    }, []);
     useEffect(() => {
         if (editData) {
+            setErrors({});
             setProductName(editData.product_name || '');
             setShortDescription(editData.short_description || '');
             setLongDescriptions(editData.long_description || [{ title: '', description: '' }]);
@@ -86,13 +100,20 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
         }
     }, [editData]);
 
-    const handleCategoryModalOpen = () => setCategoryModalOpen(true);
-    const handleCategoryModalClose = () => setCategoryModalOpen(false);
-
-    // const handleAttributeModalOpen = () => setAttributeModalOpen(true);
-    const handleAttributeModalClose = () => setAttributeModalOpen(false);
-
-    const handleTaxProfileModalOpen = () => setTaxProfileModalOpen(true);
+    const validate = () => {
+        const tempErrors = {};
+        tempErrors.productName = productName ? "" : "Product name is required.";
+        tempErrors.shortDescription = shortDescription ? "" : "Short description is required.";
+        tempErrors.productCategory = productCategory ? "" : "Product category is required.";
+        tempErrors.skuCode = skuCode ? "" : "SKU code is required.";
+        tempErrors.stockQuantity = stockQuantity ? "" : "Stock quantity is required.";
+        tempErrors.taxCategory = taxCategory ? "" : "Tax category is required.";
+        tempErrors.regularPrice = regularPrice ? "" : "Regular price is required.";
+        tempErrors.salePrice = salePrice ? "" : "Sale price is required.";
+        tempErrors.deliveryCharges = deliveryCharges ? "" : "Delivery charges are required.";
+        setErrors(tempErrors);
+        return Object.values(tempErrors).every(x => x === "");
+    };
 
     const handleAddLongDescription = () => {
         setLongDescriptions([...longDescriptions, { title: '', description: '' }]);
@@ -109,21 +130,6 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
         setLongDescriptions(newLongDescriptions);
     };
 
-    const handleAddAttribute = () => {
-        setAttributes([...attributes, { name: '', value: '', regular_price: '', sale_price: '' }]);
-    };
-
-    const handleRemoveAttribute = (index) => {
-        const newAttributes = attributes.filter((_, i) => i !== index);
-        setAttributes(newAttributes);
-    };
-
-    const handleAttributeChange = (index, field, value) => {
-        const newAttributes = attributes.slice();
-        newAttributes[index][field] = value;
-        setAttributes(newAttributes);
-    };
-
     const handleFileChange = (e, setImageCallback) => {
         const file = e.target.files[0];
         if (file) {
@@ -136,7 +142,7 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
     };
 
     const handleMultipleFilesChange = (e, setImagesCallback) => {
-        const files = e.target.files[0];
+        const files = e.target.files;
         const fileArray = Array.from(files);
         const promises = fileArray.map(file =>
             new Promise((resolve, reject) => {
@@ -158,82 +164,129 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
             });
     };
 
+
     const handleAddProduct = (e) => {
+        setLoading(true);
         e.preventDefault();
-        const payload = {
-            product_name: productName,
-            short_description: shortDescription,
-            long_description: longDescriptions,
-            CategoryId: productCategory,
-            sku_code: skuCode,
-            stock_qty: stockQuantity,
-            tax_category: taxCategory,
-            regular_price: regularPrice,
-            sale_price: salePrice,
-            prod_attribute: attributes,
-            delivery_charges: deliveryCharges,
-            product_single_image: productDisplayImage,
-            product_multiple_image: productGallery,
-        };
-        console.log('Payload:', payload);
-        axios.post(`${url}/product/add`, payload, {
-            headers: {
-                Authorization: `${token}`
-            }
-        }).then((res) => {
-            console.log(res);
-        }).catch((error) => {
-            console.log(error);
-        })
-    };
-    const handleEditProduct = (e) => {
-        e.preventDefault();
-        const payload = {
-            product_name: productName,
-            short_description: shortDescription,
-            long_description: longDescriptions,
-            CategoryId: productCategory,
-            sku_code: skuCode,
-            stock_qty: stockQuantity,
-            tax_category: taxCategory,
-            regular_price: regularPrice,
-            sale_price: salePrice,
-            prod_attribute: attributes,
-            delivery_charges: deliveryCharges,
-            product_single_image: productDisplayImage,
-            product_multiple_image: productGallery,
-        };
-        console.log('Payload:', payload);
-        axios.put(`${url}/product/update/${editData.id}`, payload, {
-            headers: {
-                Authorization: `${token}`
-            }
-        }).then((res) => {
-            console.log(res);
-            if (res.data.success) {
-                handleClose();
-                getAllProducts();
-            }
-        })
+        if (validate()) {
+            const payload = {
+                product_name: productName,
+                short_description: shortDescription,
+                long_description: longDescriptions,
+                CategoryId: productCategory,
+                sku_code: skuCode,
+                stock_qty: stockQuantity,
+                tax_category: taxCategory,
+                regular_price: regularPrice,
+                sale_price: salePrice,
+                prod_attribute: attributes,
+                delivery_charges: deliveryCharges,
+                product_single_image: productDisplayImage,
+                product_multiple_image: productGallery,
+            };
+            axios.post(`${url}/product/add`, payload, {
+                headers: {
+                    Authorization: `${token}`
+                }
+            }).then((res) => {
+                console.log(res);
+                if (res.data.success) {
+                    setLoading(false);
+                    handleClose();
+                    getAllProducts();
+                    toast.success('Successfully add product', {
+                        position: 'top-right'
+                    });
+                } else {
+                    toast.error('Failed to add product', {
+                        position: 'top-right',
+                    });
+                }
+            }).catch((error) => {
+                setLoading(false);
+                console.log(error);
+                toast.error('Failed to add product', {
+                    position: 'top-right',
+                });
+            });
+        } else {
+            setLoading(false);
+        }
     };
 
-    // const reviews = [
-    //     {
-    //         id: 1,
-    //         customerName: 'John Doe',
-    //         rating: 4,
-    //         comment: 'Great product!',
-    //     },
-    //     {
-    //         id: 2,
-    //         customerName: 'Jane Smith',
-    //         rating: 5,
-    //         comment: 'Highly recommend!',
-    //     },
-    // ];
+    const handleEditProduct = (e) => {
+        setLoading(true);
+        e.preventDefault();
+        if (validate()) {
+            const payload = {
+                product_name: productName,
+                short_description: shortDescription,
+                long_description: longDescriptions,
+                CategoryId: productCategory,
+                sku_code: skuCode,
+                stock_qty: stockQuantity,
+                tax_category: taxCategory,
+                regular_price: regularPrice,
+                sale_price: salePrice,
+                prod_attribute: attributes,
+                delivery_charges: deliveryCharges,
+                product_single_image: productDisplayImage,
+                product_multiple_image: productGallery,
+            };
+            axios.put(`${url}/product/update/${editData.id}`, payload, {
+                headers: {
+                    Authorization: `${token}`
+                }
+            }).then((res) => {
+                console.log(res);
+                if (res.data.success) {
+                    setLoading(false);
+                    handleClose();
+                    getAllProducts();
+                    toast.success('Successfully update product', {
+                        position: 'top-right',
+                    });
+                } else {
+                    toast.error('Failed to update product', {
+                        position: 'top-right',
+                    });
+                }
+            }).catch((err) => {
+                toast.error('Failed to update product', {
+                    position: 'top-right',
+                });
+                setLoading(false);
+                console.error(err);
+            })
+        }
+    };
 
     return (
         <>
+            {loading && (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        zIndex: 9999,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <TailSpin
+                        visible
+                        height="80"
+                        width="80"
+                        color="#4fa94d"
+                        ariaLabel="tail-spin-loading"
+                    />
+                </Box>
+            )}
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -257,6 +310,8 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={productName}
                             onChange={(e) => setProductName(e.target.value)}
+                            error={!!errors.productName}
+                            helperText={errors.productName}
                         />
                         <TextField
                             fullWidth
@@ -265,6 +320,8 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={shortDescription}
                             onChange={(e) => setShortDescription(e.target.value)}
+                            error={!!errors.shortDescription}
+                            helperText={errors.shortDescription}
                         />
 
                         {longDescriptions.map((desc, index) => (
@@ -291,32 +348,38 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                                     <IconButton
                                         onClick={() => handleRemoveLongDescription(index)}
                                         size="small"
-                                        color="secondary"
-                                        style={{ position: 'absolute', top: '-25px', right: 0 }}
+                                        style={{ position: 'absolute', top: 0, right: 0 }}
                                     >
                                         <DeleteIcon />
                                     </IconButton>
                                 )}
                             </Box>
                         ))}
-                        <Button onClick={handleAddLongDescription} variant="contained" color="primary">
-                            Add Description
-                        </Button>
-                        <FormControl fullWidth margin="normal" variant="outlined">
-                            <InputLabel>Category</InputLabel>
+                        <Button onClick={handleAddLongDescription}>Add Long Description</Button>
+
+                        <FormControl fullWidth margin="normal" error={!!errors.productCategory}>
+                            <InputLabel>Product Category</InputLabel>
                             <Select
                                 value={productCategory}
                                 onChange={(e) => setProductCategory(e.target.value)}
-                                label="Category"
+                                label="Product Category"
                             >
                                 <MenuItem value="">
                                     <em>None</em>
                                 </MenuItem>
-                                <MenuItem value={1}>Category 1</MenuItem>
-                                <MenuItem value={2}>Category 2</MenuItem>
-                                <MenuItem value={3}>Category 3</MenuItem>
+                                {
+                                    allCategory?.map((val, i) => (
+                                        <MenuItem key={i} value={val.id}>{val.name}</MenuItem>
+                                    ))
+                                }
                             </Select>
+                            {errors.productCategory && (
+                                <Typography color="error" variant="caption">
+                                    {errors.productCategory}
+                                </Typography>
+                            )}
                         </FormControl>
+
                         <TextField
                             fullWidth
                             label="SKU Code"
@@ -324,6 +387,8 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={skuCode}
                             onChange={(e) => setSkuCode(e.target.value)}
+                            error={!!errors.skuCode}
+                            helperText={errors.skuCode}
                         />
                         <TextField
                             fullWidth
@@ -332,22 +397,20 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={stockQuantity}
                             onChange={(e) => setStockQuantity(e.target.value)}
+                            error={!!errors.stockQuantity}
+                            helperText={errors.stockQuantity}
                         />
-                        <FormControl fullWidth margin="normal" variant="outlined">
-                            <InputLabel>Tax Category</InputLabel>
-                            <Select
-                                value={taxCategory}
-                                onChange={(e) => setTaxCategory(e.target.value)}
-                                label="Tax Category"
-                            >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem value={1}>Tax Category 1</MenuItem>
-                                <MenuItem value={2}>Tax Category 2</MenuItem>
-                                <MenuItem value={3}>Tax Category 3</MenuItem>
-                            </Select>
-                        </FormControl>
+
+                        <TextField
+                            fullWidth
+                            label="Tax Category"
+                            margin="normal"
+                            variant="outlined"
+                            value={taxCategory}
+                            onChange={(e) => setTaxCategory(e.target.value)}
+                            error={!!errors.taxCategory}
+                            helperText={errors.taxCategory}
+                        />
                         <TextField
                             fullWidth
                             label="Regular Price"
@@ -355,6 +418,8 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={regularPrice}
                             onChange={(e) => setRegularPrice(e.target.value)}
+                            error={!!errors.regularPrice}
+                            helperText={errors.regularPrice}
                         />
                         <TextField
                             fullWidth
@@ -363,6 +428,8 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={salePrice}
                             onChange={(e) => setSalePrice(e.target.value)}
+                            error={!!errors.salePrice}
+                            helperText={errors.salePrice}
                         />
                         <TextField
                             fullWidth
@@ -371,255 +438,70 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                             variant="outlined"
                             value={deliveryCharges}
                             onChange={(e) => setDeliveryCharges(e.target.value)}
-                        />
-                        <FormControl component="fieldset" className="w-100" margin="normal">
-                            <Typography>Stock Status</Typography>
-                            <RadioGroup
-                                row
-                                value={stockStatus}
-                                onChange={(e) => setStockStatus(e.target.value)}
-                            >
-                                <FormControlLabel value="available" control={<Radio />} label="Available" />
-                                <FormControlLabel value="not_available" control={<Radio />} label="Not Available" />
-                            </RadioGroup>
-                        </FormControl>
-                        <TextField
-                            fullWidth
-                            label="Product Display Image"
-                            margin="normal"
-                            variant="outlined"
-                            type="file"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            onChange={(e) => handleFileChange(e, setProductDisplayImage)}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Product Gallery"
-                            margin="normal"
-                            variant="outlined"
-                            type="file"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            inputProps={{ multiple: true }}
-                            onChange={(e) => handleMultipleFilesChange(e, setProductGallery)}
+                            error={!!errors.deliveryCharges}
+                            helperText={errors.deliveryCharges}
                         />
 
-                        <Box display="flex" justifyContent="space-between" marginY={2}>
-                            <TextField
-                                label="Regular Price (INR)"
-                                variant="outlined"
-                                type="number"
-                                fullWidth
-                                margin="normal"
-                                value={regularPrice}
-                                onChange={(e) => setRegularPrice(e.target.value)}
+                        <Box>
+                            <Typography variant="h6">Product Display Image</Typography>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(e, setProductDisplayImage)}
                             />
-                            <TextField
-                                label="Sale Price (INR)"
-                                variant="outlined"
-                                type="number"
-                                fullWidth
-                                margin="normal"
-                                sx={{ marginLeft: 2 }}
-                                value={salePrice}
-                                onChange={(e) => setSalePrice(e.target.value)}
-                            />
+                            {errors.productDisplayImage && (
+                                <Typography color="error" variant="caption">
+                                    {errors.productDisplayImage}
+                                </Typography>
+                            )}
+                            {productDisplayImage && (
+                                <img src={productDisplayImage} alt="Product" style={{ width: '100%', marginTop: '10px' }} />
+                            )}
                         </Box>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Product Category</InputLabel>
-                            <Select
-                                variant="outlined"
-                                label="Product Category"
-                                value={productCategory}
-                                onChange={(e) => setProductCategory(e.target.value)}
-                            >
-                                <MenuItem value={1}>Category 1</MenuItem>
-                                <MenuItem value={2}>Category 2</MenuItem>
-                            </Select>
-                            <Button onClick={handleCategoryModalOpen} sx={{ mt: 2 }}>
-                                Add Category
-                            </Button>
-                        </FormControl>
-                        <TextField
-                            fullWidth
-                            label="Product SKU Code"
-                            margin="normal"
-                            variant="outlined"
-                            value={skuCode}
-                            onChange={(e) => setSkuCode(e.target.value)}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Stock Quantity"
-                            margin="normal"
-                            variant="outlined"
-                            type="number"
-                            value={stockQuantity}
-                            onChange={(e) => setStockQuantity(e.target.value)}
-                        />
+
+                        <Box>
+                            <Typography variant="h6">Product Gallery Images</Typography>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => handleMultipleFilesChange(e, setProductGallery)}
+                            />
+                            {productGallery && productGallery.map((image, index) => (
+                                <img
+                                    key={index}
+                                    src={image}
+                                    alt={`Gallery ${index}`}
+                                    style={{ width: '100px', marginTop: '10px', marginRight: '10px' }}
+                                />
+                            ))}
+                        </Box>
+
                         <FormControl component="fieldset" margin="normal">
-                            <Typography>Stock Status</Typography>
+                            <Typography variant="h6">Stock Status</Typography>
                             <RadioGroup
                                 row
+                                aria-label="stock-status"
                                 value={stockStatus}
                                 onChange={(e) => setStockStatus(e.target.value)}
                             >
-                                <FormControlLabel value="available" control={<Radio />} label="Available" />
-                                <FormControlLabel value="not_available" control={<Radio />} label="Not Available" />
+                                <FormControlLabel
+                                    value="available"
+                                    control={<Radio />}
+                                    label="Available"
+                                />
+                                <FormControlLabel
+                                    value="not_available"
+                                    control={<Radio />}
+                                    label="Not Available"
+                                />
                             </RadioGroup>
                         </FormControl>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Tax Category</InputLabel>
-                            <Select
-                                variant="outlined"
-                                label="Tax Category"
-                                value={taxCategory}
-                                onChange={(e) => setTaxCategory(e.target.value)}
-                            >
-                                <MenuItem value={1}>Tax Type 1</MenuItem>
-                                <MenuItem value={2}>Tax Type 2</MenuItem>
-                            </Select>
-                            <Button onClick={handleTaxProfileModalOpen} sx={{ mt: 2 }}>
-                                Add Tax Profile
-                            </Button>
-                        </FormControl>
-                        {attributes.map((attr, index) => (
-                            <Box key={index} mb={2} position="relative">
-                                <TextField
-                                    fullWidth
-                                    label={`Attribute Name ${index + 1}`}
-                                    margin="normal"
-                                    variant="outlined"
-                                    value={attr.name}
-                                    onChange={(e) => handleAttributeChange(index, 'name', e.target.value)}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label={`Attribute Value ${index + 1}`}
-                                    margin="normal"
-                                    variant="outlined"
-                                    value={attr.value}
-                                    onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label={`Regular Price ${index + 1} (INR)`}
-                                    margin="normal"
-                                    variant="outlined"
-                                    type="number"
-                                    value={attr.regular_price}
-                                    onChange={(e) => handleAttributeChange(index, 'regular_price', e.target.value)}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label={`Sale Price ${index + 1} (INR)`}
-                                    margin="normal"
-                                    variant="outlined"
-                                    type="number"
-                                    value={attr.sale_price}
-                                    onChange={(e) => handleAttributeChange(index, 'sale_price', e.target.value)}
-                                />
-                                {index > 0 && <IconButton
-                                    onClick={() => handleRemoveAttribute(index)}
-                                    style={{ position: 'absolute', top: '-25px', right: 0 }}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>}
-                            </Box>
-                        ))}
-                        <Button onClick={handleAddAttribute} sx={{ mt: 2, mb: 2 }}>
-                            Add More Attributes
-                        </Button>
-                        <TextField
-                            fullWidth
-                            label="Delivery Charges Settings"
-                            margin="normal"
-                            variant="outlined"
-                            value={deliveryCharges}
-                            onChange={(e) => setDeliveryCharges(e.target.value)}
-                        />
-                        <Typography variant="h6" component="h3" sx={{ mt: 4, mb: 2 }}>
-                            Customer Reviews
-                        </Typography>
-                        {/* {reviews.map((review) => (
-                                <Card key={review.id} sx={{ mb: 2 }}>
-                                    <CardContent>
-                                        <Typography variant="subtitle1">
-                                            {review.customerName}
-                                        </Typography>
-                                        <Rating value={review.rating} readOnly />
-                                        <Typography variant="body2" color="textSecondary">
-                                            {review.comment}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            ))} */}
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            sx={{ marginTop: 2 }}
-                        >
-                            Save product
+
+                        <Button variant="contained" color="primary" type="submit" fullWidth>
+                            {Object.keys(editData).length === 0 ? 'Add Product' : 'Update Product'}
                         </Button>
                     </form>
-                </Box>
-            </Modal>
-
-            {/* Category Modal */}
-            <Modal
-                open={categoryModalOpen}
-                onClose={handleCategoryModalClose}
-                aria-labelledby="category-modal-title"
-                aria-describedby="category-modal-description"
-            >
-                <Box sx={secondaryModalStyle}>
-                    <Typography id="category-modal-title" variant="h6" component="h2">
-                        Category
-                    </Typography>
-                    {/* Add content for Category modal here */}
-                    <Button onClick={handleCategoryModalClose} variant="contained" color="primary" fullWidth>
-                        Close
-                    </Button>
-                </Box>
-            </Modal>
-
-            {/* Attribute Modal */}
-            <Modal
-                open={attributeModalOpen}
-                onClose={handleAttributeModalClose}
-                aria-labelledby="attribute-modal-title"
-                aria-describedby="attribute-modal-description"
-            >
-                <Box sx={secondaryModalStyle}>
-                    <Typography id="attribute-modal-title" variant="h6" component="h2">
-                        Attribute
-                    </Typography>
-                    {/* Add content for Attribute modal here */}
-                    <Button onClick={handleAttributeModalClose} variant="contained" color="primary" fullWidth>
-                        Close
-                    </Button>
-                </Box>
-            </Modal>
-
-            {/* Tax Profile Modal */}
-            <Modal
-                open={taxProfileModalOpen}
-                onClose={handleTaxProfileModalOpen}
-                aria-labelledby="tax-profile-modal-title"
-                aria-describedby="tax-profile-modal-description"
-            >
-                <Box sx={secondaryModalStyle}>
-                    <Typography id="tax-profile-modal-title" variant="h6" component="h2">
-                        Tax Profile
-                    </Typography>
-                    {/* Add content for Tax Profile modal here */}
-                    <Button onClick={handleTaxProfileModalOpen} variant="contained" color="primary" fullWidth>
-                        Close
-                    </Button>
                 </Box>
             </Modal>
         </>

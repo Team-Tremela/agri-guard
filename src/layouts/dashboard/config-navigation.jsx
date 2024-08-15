@@ -1,4 +1,4 @@
-import SvgColor from 'src/components/svg-color';
+import SvgColor from "src/components/svg-color";
 
 // ----------------------------------------------------------------------
 
@@ -55,11 +55,11 @@ const navConfig = [
       //   path: '/order/customers',
       //   icon: icon('ic_category'),
       // },
-      {
-        title: 'Reports',
-        path: '/order/reports',
-        icon: icon('ic_reports'),
-      }
+      // {
+      //   title: 'Reports',
+      //   path: '/order/reports',
+      //   icon: icon('ic_reports'),
+      // }
     ],
   },
   {

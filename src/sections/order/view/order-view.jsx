@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -22,6 +23,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 import { url, token } from 'src/sections/url';
 
+import { TailSpin } from 'react-loader-spinner';
 import ProductModal from './ProductModal';
 import TableNoData from '../table-no-data';
 import TableToolbar from '../user-table-toolbar';
@@ -37,20 +39,24 @@ export default function OrderPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [allOrder, setAllOrder] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const getAllorder = () => {
+      setLoading(true);
       axios.get(`${url}/order/fetch-total-order`, {
         headers: {
           Authorization: `${token}`
         }
       })
         .then((res) => {
-          console.log(res, "res");
+          // console.log(res, "res");
           if (res.data.success) {
+            setLoading(false);
             setAllOrder(res.data.data);
           }
         })
         .catch((error) => {
+          setLoading(false);
           console.error(error);
         });
     };
@@ -105,10 +111,34 @@ export default function OrderPage() {
 
   return (
     <Container>
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TailSpin
+            visible
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+          />
+        </Box>
+      )}
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Orders</Typography>
         <Stack direction="row" spacing={2}>
-          
+
           <Button
             variant="contained"
             color="inherit"
@@ -132,11 +162,11 @@ export default function OrderPage() {
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sortDirection={orderBy === 'name' ? order : false}>
+                  <TableCell sortDirection={orderBy === 'farmer_name' ? order : false}>
                     <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={(event) => handleSort(event, 'name')}
+                      active={orderBy === 'farmer_name'}
+                      direction={orderBy === 'farmer_name' ? order : 'asc'}
+                      onClick={(event) => handleSort(event, 'farmer_name')}
                     >
                       Name
                     </TableSortLabel>
@@ -154,7 +184,7 @@ export default function OrderPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <TableRow key={row.id} hover role="checkbox" tabIndex={-1}>
-                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.farmer_name}</TableCell>
                       <TableCell>{row.qty}</TableCell>
                       <TableCell>{row.price}</TableCell>
                       <TableCell>{row.order_status}</TableCell>

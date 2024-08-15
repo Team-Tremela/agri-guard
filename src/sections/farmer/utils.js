@@ -1,3 +1,4 @@
+
 export const visuallyHidden = {
   border: 0,
   margin: -1,
@@ -9,11 +10,6 @@ export const visuallyHidden = {
   whiteSpace: 'nowrap',
   clip: 'rect(0 0 0 0)',
 };
-
-export function emptyRows(page, rowsPerPage, arrayLength) {
-  return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
-}
-
 function descendingComparator(a, b, orderBy) {
   if (a[orderBy] === null) {
     return 1;
@@ -35,6 +31,9 @@ export function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
+export function emptyRows(page, rowsPerPage, arrayLength) {
+  return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
+}
 export function applyFilter({ inputData, comparator, filterName }) {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -47,10 +46,12 @@ export function applyFilter({ inputData, comparator, filterName }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((user) => {
+      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+      return fullName.indexOf(filterName.toLowerCase()) !== -1;
+    });
   }
 
   return inputData;
 }
+

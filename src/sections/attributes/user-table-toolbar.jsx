@@ -10,8 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
-
-export default function UserTableToolbar({ numSelected, filterName, onFilterName }) {
+/* eslint-disable react/prop-types */
+export default function UserTableToolbar({ numSelected, filterName, onFilterName, placeholder }) {
   return (
     <Toolbar
       sx={{
@@ -33,7 +33,7 @@ export default function UserTableToolbar({ numSelected, filterName, onFilterName
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search category..."
+          placeholder={`Search ${placeholder}...`}
           startAdornment={
             <InputAdornment position="start">
               <Iconify
