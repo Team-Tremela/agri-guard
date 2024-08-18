@@ -247,6 +247,7 @@ const ProductModal = ({ open, handleClose, editData, getAllProducts }) => {
                         position: 'top-right',
                     });
                 } else {
+                    setLoading(false);
                     toast.error('Failed to update product', {
                         position: 'top-right',
                     });

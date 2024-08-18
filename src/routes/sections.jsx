@@ -37,6 +37,7 @@ export default function Router() {
         { path: 'products/category', element: <CategoryPage /> },
         { path: 'products/attributes', element: <AttributesPage /> },
         { path: 'registered-farmers', element: <FarmerPage /> },
+        { path: 'blogs', element: <BlogPage /> },
         { path: 'carbon-credit', element: <CarbonPage /> },
         { path: 'soil-testing', element: <SoilPage /> },
         { path: 'crop-doctor', element: <CropPage /> },

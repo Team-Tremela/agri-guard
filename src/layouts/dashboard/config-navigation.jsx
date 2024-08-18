@@ -87,11 +87,11 @@ const navConfig = [
     path: '/dashboard/carbon-credit',
     icon: icon('ic_carbon'),
   },
-  // {
-  //   title: 'Blogs/Crop Guide',
-  //   path: '/dashboard/cropguide',
-  //   icon: icon('ic_blog2'),
-  // },
+  {
+    title: 'Blogs/Crop Guide',
+    path: '/dashboard/blogs',
+    icon: icon('ic_blog2'),
+  },
   // {
   //   title: 'Mobile app settings',
   //   path: '#',

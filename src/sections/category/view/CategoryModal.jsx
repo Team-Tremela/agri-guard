@@ -60,6 +60,8 @@ const CategoryModal = ({ open, handleClose, editData, getAllCategory }) => {
     useEffect(() => {
         if (editData) {
             setCategoryName(editData.name || '');
+        } else {
+            setCategoryName('');
         }
     }, [editData]);
     const handleAddCategory = (e) => {
